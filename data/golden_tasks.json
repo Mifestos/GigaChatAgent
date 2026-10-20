@@ -1,0 +1,27 @@
+[
+  {
+    "id": "task_1",
+    "task": "Сколько всего строк в датасете? Выведи только число.",
+    "expected_output_contains": "7043"
+  },
+  {
+    "id": "task_2",
+    "task": "Сколько уникальных значений в колонке 'Churn'? Выведи только число.",
+    "expected_output_contains": "2"
+  },
+  {
+    "id": "task_3",
+    "task": "Посчитай среднее значение колонки 'MonthlyCharges' (округли до 2 знаков).",
+    "expected_output_contains": "64.76"
+  },
+  {
+    "id": "task_4",
+    "task": "Найди количество клиентов с типом контракта 'Month-to-month'.",
+    "expected_output_contains": "3875"
+  },
+  {
+    "id": "task_5",
+    "task": "Выведи максимальный срок контракта (колонка 'tenure').",
+    "expected_output_contains": "72"
+  }
+]
