@@ -13,9 +13,10 @@ def get_code_generation_prompt(task: str, data_schema: str, previous_error: str 
 ПРАВИЛА:
 1. Верни ТОЛЬКО валидный Python-код.
 2. Не используй сетевые запросы (requests, urllib) и системные команды (os.system).
-3. Для загрузки данных используй: import pandas as pd; df = pd.read_csv('data.csv')
-4. Обязательно выводи результат через print(), чтобы я мог его прочитать.
-5. Не оборачивай код в Markdown-разметку (без ```python ... ```).
+3. Если задача требует анализа данных, используй: import pandas as pd; df = pd.read_csv('data.csv')
+4. Если задача НЕ требует данных (например, просто написать цикл или математическую функцию), НЕ используй pd.read_csv.
+5. Обязательно выводи результат через print(), чтобы я мог его прочитать.
+6. Не оборачивай код в Markdown-разметку (без ```python ... ```).
 """
 
     if previous_error:
