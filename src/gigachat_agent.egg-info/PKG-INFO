@@ -1,0 +1,5 @@
+Metadata-Version: 2.4
+Name: gigachat-agent
+Version: 0.1.0
+Summary: AI agent for safe, budgeted data analysis using GigaChat
+Requires-Python: >=3.12
