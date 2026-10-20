@@ -1,14 +1,11 @@
 from langgraph.graph import StateGraph, END
 from gigachat_agent.graph.state import AgentState
 from gigachat_agent.graph.nodes import generate_code_node, execute_code_node
+from gigachat_agent.guardrails.budget import BudgetExceeded
 
 def should_continue(state: AgentState):
-    """Логика ветвления: что делать после выполнения кода?"""
-    # Если есть ошибка, возвращаемся к генерации кода (self-correction)
     if state.get("error"):
-        print("Возвращаемся к генерации кода для исправления ошибки...")
         return "generate"
-    # Если ошибки нет, завершаем работу
     return END
 
 # Создаем граф

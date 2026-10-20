@@ -10,13 +10,14 @@ load_dotenv()
 class LLMResponse(BaseModel):
     code: str
     raw_text: str
+    tokens_used: int
 
-# Инициализируем клиента с явным указанием base_url и scope
+# Инициализируем клиента
 llm = GigaChat(
     credentials=os.getenv("GIGACHAT_CREDENTIALS"),
     scope="GIGACHAT_API_PERS",
     model="GigaChat",
-    base_url="https://gigachat.devices.sberbank.ru/api/v1", # Важно для бесплатного тарифа
+    base_url="https://gigachat.devices.sberbank.ru/api/v1",
     verify_ssl_certs=False,
     temperature=0.1
 )
@@ -37,4 +38,12 @@ def generate_code(task: str, data_schema: str, previous_error: str = None) -> LL
     
     clean_code = clean_markdown_code(raw_text)
     
-    return LLMResponse(code=clean_code, raw_text=raw_text)
+    # Достаем количество токенов (с защитой от отсутствия метаданных)
+    tokens = 0
+    if hasattr(response, "usage_metadata") and response.usage_metadata:
+        tokens = response.usage_metadata.get("total_tokens", 0)
+    elif hasattr(response, "response_metadata") and response.response_metadata:
+        usage = response.response_metadata.get("token_usage", {})
+        tokens = usage.get("total_tokens", 0)
+    
+    return LLMResponse(code=clean_code, raw_text=raw_text, tokens_used=tokens)

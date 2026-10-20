@@ -6,6 +6,7 @@ from rich.panel import Panel
 from rich.syntax import Syntax
 from gigachat_agent.graph.builder import app
 from langgraph.errors import GraphRecursionError
+from gigachat_agent.guardrails.budget import BudgetTracker, BudgetExceeded
 
 cli = typer.Typer(help="GigaChatAgent: AI-ассистент для анализа данных.")
 console = Console()
@@ -37,24 +38,36 @@ def analyze(
         border_style="green"
     ))
 
+    # ВАЖНО: Инициализируем бюджет и передаем его в граф!
     initial_state = {
         "task": query,
-        "data_schema": schema, # <-- Теперь тут реальная схема!
+        "data_schema": schema,
         "data_path": file,
         "generated_code": None,
         "execution_output": None,
-        "error": None
+        "error": None,
+        "budget": BudgetTracker(max_iterations=3, max_tokens=15000) # <-- Добавили бюджет
     }
 
-    # Запускаем агента и ловим ошибку рекурсии
+    # Запускаем агента
     try:
         with console.status("[bold yellow]Агент думает и пишет код...[/bold yellow]"):
-            final_state = app.invoke(initial_state, config={"recursion_limit": 4})
+            # Увеличили recursion_limit для LangGraph, чтобы сработал наш BudgetTracker
+            final_state = app.invoke(initial_state, config={"recursion_limit": 10})
+            
+    except BudgetExceeded as e:
+        console.print(Panel(
+            f"[bold red]Бюджет исчерпан![/bold red]\n\n{str(e)}\n"
+            "Агент остановлен, чтобы не тратить лишние ресурсы.",
+            title="Остановка по лимитам",
+            border_style="red"
+        ))
+        raise typer.Exit(1)
+        
     except GraphRecursionError:
         console.print(Panel(
             "[bold red]Превышен лимит попыток исправления![/bold red]\n\n"
-            "Агент 4 раза пытался написать код, но он падал с ошибкой. "
-            "Возможно, задача слишком сложная или данные не соответствуют ожиданиям.",
+            "Агент слишком много раз пытался написать код, но он падал с ошибкой.",
             title="Ошибка агента",
             border_style="red"
         ))
